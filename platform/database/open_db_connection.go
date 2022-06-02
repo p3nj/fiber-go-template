@@ -1,6 +1,11 @@
 package database
 
-import "github.com/create-go-app/fiber-go-template/app/queries"
+import (
+	"os"
+
+	"github.com/create-go-app/fiber-go-template/app/queries"
+	"github.com/jmoiron/sqlx"
+)
 
 // Queries struct for collect all app queries.
 type Queries struct {
@@ -10,8 +15,23 @@ type Queries struct {
 
 // OpenDBConnection func for opening database connection.
 func OpenDBConnection() (*Queries, error) {
-	// Define a new PostgreSQL connection.
-	db, err := PostgreSQLConnection()
+	// Define Database connection variables.
+	var (
+		db  *sqlx.DB
+		err error
+	)
+
+	// Get DB_TYPE value from .env file.
+	dbType := os.Getenv("DB_TYPE")
+
+	// Define a new Database connection with right DB type.
+	switch dbType {
+	case "pgx":
+		db, err = PostgreSQLConnection()
+	case "mysql":
+		db, err = MysqlConnection()
+	}
+
 	if err != nil {
 		return nil, err
 	}
